@@ -1,0 +1,332 @@
+#!/bin/bsh
+
+###########################
+##
+##	File: utility_functions.bsh
+##
+##	Author: Jesus Sanchez (jsanchez.consultant@gmail.com)
+##
+##	Copyright Notice: Creative Commons Attribution-ShareAlike 4.0 International License
+##
+######################################################################
+
+	NORM="\033[0m"
+	BOLD="\033[1m"
+	RED_F="\033[31m"
+	RED_B="\033[41m"
+	YELLOW_F="\033[33m"
+	YELLOW_B="\033[43m"
+	GREEN_F="\033[32m"
+	GREEN_B="\033[42m"
+
+###############
+## FUNCTIONS ##
+###############
+
+#####################
+# Utility Functions #
+#####################
+
+##########################
+#
+#	Function: continueQuestion
+#
+#	Description:
+#		This function asks the user if all is good to continue
+#
+#	Usage: continueQuestion
+#
+##############################################
+function continueQuestion {
+	STEP=${1}
+	answer="NONE"
+	while [[ ${answer} != "y" && ${answer} != "Y" && ${answer} != "n" && ${answer} != "N" ]]
+	do
+		if [[ ${answer} != "NONE" ]]
+		then
+			printff "[ATTENTION] Please enter 'y' or 'n' without the quotes and press <ENTER>\n"
+		fi
+		printff "[INPUT] Do you want to continue? (y/n) <ENTER> for [y]: "
+		read answer
+		if [[ -z ${answer} ]]
+		then
+			answer="y"
+		fi
+	done
+	if [[ ${answer} = "y" || ${answer} = "Y" ]]
+	then
+		return 0
+	elif [[ ${answer} = "n" || ${answer} = "N" ]]
+	then
+		return 1
+	fi
+}
+
+##########################
+#
+#	Function name: getArgs
+#
+#	Description:
+#		This function provides the getopts functionality
+#	while allowing the use of long operations and list of parameters.
+#	in the case of a list of arguments for only one option, this list
+#	will be returned as a single-space-separated list in one single string.
+#
+#	Pre-reqs:
+#		None
+#
+#	Output:
+#		GA_OPTIONS variable will hold the current option
+#		GA_VALUES variable will hold the value (or list of values) associated
+#			with the current option
+#	
+#	Usage:
+#		You have to source the function in order to be able to access the GA_OPTIONS
+#	and GA_VALUES variables
+#		. getArgs $*
+#
+####################
+function getArgs {
+
+	# Variables to return the values out of the function
+	typeset -a GA_OPTIONS
+	typeset -a GA_VALUES
+	
+	# Checking for number of arguments
+	if [[ -z $1 ]]
+	then
+		msgPrint -warning "No arguments found"
+		msgPrint -info "Please call this function as follows: . getArgs \$*"
+		exit 1
+	fi
+	
+	# Grab the dash
+	dash=$(echo ${1} | grep "-")
+	# Looking for short (-) or long (--) options
+	isOption=$(expr index "${dash}" "-")
+	# Initialize the counter
+	counter=0
+	# Loop while there are arguments left
+	while [[ $# -gt 0 ]]
+	do
+		if [[ -n ${dash} && ${isOption} -eq 1 ]]
+		then
+			(( counter+=1 ))
+			GA_OPTIONS[$counter]=${1}
+			shift
+		else
+			if [[ -z ${GA_VALUES[${counter}]} ]]
+			then
+				GA_VALUES[${counter}]=${1}
+			else
+				GA_VALUES[${counter}]="${GA_VALUES[${counter}]} ${1}"
+			fi
+			shift
+		fi
+		dash=$(echo ${1} | grep "-")
+		isOption=$(expr index "${dash}" "-")
+	done
+	# Make the variables available to the main algorithm
+	export GA_OPTIONS
+	export GA_VALUES
+	
+	msgPrint -debug "Please check the GA_OPTIONS and GA_VALUES arrays for options and arguments"
+	# Exit with success
+	return 0
+}
+
+##########################
+#
+#	Function name: msgPrint
+#
+#	Description:
+#		This function will printf debug messages if the
+#	main script was called with the -debug option
+#
+#	Usage:
+#		msgPrint -<info|warning|debug|error|critical|input|title> <double-quoted message>
+#		msgPrint -<blank|separator>
+#
+####################
+function msgPrint {
+	if [[ ${SILENT} -ne 1 ]]
+	then
+		type=""
+		case ${1} in
+			"-blank")		type="BLANK";;
+			"-critical")	type="CRITICAL";;
+			"-error")		type="ERROR";;
+			"-debug")		type="DEBUG"
+							if [[ -n $2 ]]
+							then
+								shift
+								caller=${1}
+							else
+								caller=${0}
+							fi;;
+			"-info")		type="INFO";;
+			"-input")		type="INPUT";;
+			"-notice")		type="NOTICE";;
+			"-none")		type="NONE";;
+			"-separator")	type="SEPARATOR";;
+			"-title")		type="TITLE";;
+			"-warning")		type="WARNING";;
+			*)				type="NONE"
+		esac
+		shift
+		message="$*"
+
+	# Print
+		if [[ ${type} = "BLANK" ]]
+		then
+			printf "\n"
+		elif [[ ${type} = "DEBUG" ]]
+		then
+			if [[ ${DEBUG} -eq 1 ]]
+			then
+				ts=$(date +"%Y-%m-%d %H:%M:%S")
+				printf "[${type}][${ts}][${caller}] $message \n"
+			fi
+		elif [[ ${type} = "INPUT" ]]
+		then
+			printf "[${type}] $message: \n"
+		elif [[ ${type} = "SEPARATOR" ]]
+		then
+			printf "----------------------------------------------\n"
+		elif [[ ${type} = "TITLE" ]]
+		then
+			SPLITTER="================================================="
+			printf "\n"
+			printf "$SPLITTER\n"
+			printf "${BOLD}${message}${NORM}\n"
+			printf "$SPLITTER\n"
+			printf "\n"
+		elif [[ ${type} = "NONE" ]]
+		then
+			printf "[ $message ]\n"
+		elif [[ ${type} = "ERROR" ]]
+		then
+			printf "[${RED_F}${type}${NORM}] ${message}\n"
+		elif [[ ${type} = "CRITICAL" ]]
+		then
+			printf "[${RED_F}${BOLD}${type}${NORM}] ${RED_F}${message}${NORM}\n"
+		elif [[ ${type} = "WARNING" ]]
+		then
+			printf "[${YELLOW_F}${BOLD}${type}${NORM}] ${message}\n"
+		else
+			printf "[${type}] ${message}\n"
+		fi
+	fi
+}
+
+##########################
+#
+#	Function name: setupLogs
+#
+#	Description:
+#		This function will setup alog redirection pipe
+#	that will allow to write to console as well as to a logfile.
+#
+#	Pre-reqs:
+#		Use the variable $logFile in the main algorythm with
+#	full path and file name.
+#
+#	Usage:
+#		setupLogs <start|stop> <logFile>
+#
+####################
+function setupLogs {
+	logFile=${2}
+	if [[ ${1} = "start" ]]
+	then
+		# set up redirects
+		exec 3>&1 4>&2
+		FIFO=/tmp/fifo.$$
+		export FIFO
+		[[ -e $FIFO ]] || mkfifo $FIFO
+		if [[ -e $logFile ]]
+		then
+			tee -a $logFile < $FIFO >&3 &
+		else
+			tee $logFile < $FIFO >&3 &
+		fi
+		PID=$!
+		exec > $FIFO 2>&1
+		return 0
+	elif [[ $1 = "stop" ]]
+	then
+		PIDLIST=""
+		for PROCID in $(ps -ef | grep -v grep | grep "$$" | grep tee | tr -s [:space:] | cut -d" " -f2)
+		do
+			if [[ -z $(echo $PROCID | grep tee |tr -d [:space:]) && -z $PIDLIST ]]
+			then
+				PIDLIST="$PROCID"
+			else
+				PIDLIST="$PIDLIST $PROCID"
+			fi
+		done
+		msgPrint -debug "PIDLIST: $PIDLIST"
+		exec 1>&3 2>&4 3>&- 4>&-
+		kill -9 $PIDLIST > /dev/null 2>&1
+		rm -f /tmp/fifo.$$
+		return 0
+	fi
+	return 0
+}
+
+##########################
+#
+#	Function name: profiling
+#
+#	Description:
+#		This function will setup a log where timestamps will
+#	be kept for calculating profiling information
+#
+#	Pre-reqs:
+#		None
+#
+#	Usage:
+#		profiling <start|stop> <SCRIPT|FUNCTION NAME>
+#
+####################
+function profiling {
+	caller=${2}
+	profileLog=/tmp/${caller}_$$.tmp
+	if [[ $1 == "start" || $1 == "START" ]]
+	then
+		touch $profileLog
+		TS=$(date +"%s")
+		echo "$2:START:$TS" >> $profileLog
+		return 0
+	elif [[ $1 == "stop" || $1 == "STOP" ]]
+	then
+		TS=$(date +"%s")
+		echo "$2:STOP:$TS" >> $profileLog
+		RT=0
+		RTH=0
+		RTM=0
+		RTS=0
+		#cat $profileLog
+		STARTTS=$(cat $profileLog | grep START | cut -d":" -f3)
+		ENDTS=$(cat $profileLog | grep STOP | cut -d":" -f3)
+		RT=$(( ENDTS-STARTTS ))
+		if [[ $RT -lt 60 ]]
+		then
+			RTS=$RT
+		elif [[ $RT -lt 3600 ]]
+		then
+			RTM=$( echo $RT / 60 | bc)
+			RT=$( echo $RT % 60 | bc )
+			RTS=$RT
+		else
+			RTH=$( echo $RT / 3600 | bc)
+			RT=$(( $RT % 3600 ))
+			RTM=$( echo $RT / 60 | bc)
+			RT=$( echo $RT % 60 | bc )
+			RTS=$RT
+		fi
+		msgPrint -none "$caller ran during $RTH hours $RTM minutes and $RTS seconds"
+		rm -f $profileLog
+		return 0
+	fi
+}

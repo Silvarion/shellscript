@@ -1,0 +1,19 @@
+#!/bin/bash
+
+###################
+##
+##  Filename: new_bash_template.sst
+##
+##  Description:
+##      This file is intended to be a base for starting
+##      BASH scripts development
+##
+#############################
+
+echo "Testing ECHO"
+
+printf "Since ECHO is rather outdated we prefer to use PRINT, but only PRINTF is available in BASH\n"
+
+printf "Even better is PRINTF which is a direct derivative from C++\n"
+
+printf "Hello World!\n"
