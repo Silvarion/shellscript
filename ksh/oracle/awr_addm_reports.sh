@@ -4,10 +4,7 @@
 ##
 ##	File: awr_addm_reports.sh
 ##
-##	Author: Jesus Sanchez (Jesus.Sanchez.DBA@wellsfargo.com)
-##
-##	Changelog:
-##		2017-10-20	Jesus Sanchez	Created this script
+##	Author: Jesus Sanchez (jsanchez.consultant@gmail.com)
 ##
 ##	Sample run: awr_addm_reports.sh -v [--db <DB NAME>] [-m <EMAIL ADDRESS>] [-t <TNS_ADMIN_PATH>]
 ##
