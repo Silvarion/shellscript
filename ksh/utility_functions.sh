@@ -71,25 +71,6 @@ function continueQuestion {
 
 ##########################
 #
-#       Function name: debugPrint
-#
-#       Description:
-#               This function will print debug messages if the
-#       main script was called with the -debug option
-#
-#       Usage: debugPrint <double-quoted message>
-#
-####################
-function debugPrint {
-        if [[ $DEBUG -eq 1 ]]
-        then
-                TS=$(date +"%Y-%m-%d %H:%M:%S")
-                print "[DEBUG][${TS}] $1 "
-        fi
-}
-
-##########################
-#
 #       Function name: msgPrint
 #
 #       Description:
@@ -514,7 +495,7 @@ function string2array {
 #       Function name: dbPassword
 #
 #       Description:
-#               This function wraps up the Perl Functionality from EDM Lending 
+#               This function wraps up the Perl Functionality from EDM Lending
 #			that allows to store/retrieve encrypted passwords from a server file.
 #			It’s important to note that this password file keeps “instance” passwords,
 #			so it can be used as database or instance password store
