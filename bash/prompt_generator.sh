@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 ###########################
 ##
@@ -15,8 +15,8 @@
 function welcomeMessage {
     whiptail --backtitle "SILVARION'S LINUX PROMPT GENERATOR" \
     --title "Silvarion's Prompt Generator" \
-    --msgbox "Welcome to the Linux Prompt Generator Utility. \
-    You will be able to customize your prompt by using the next menus" 20 80
+    --msgbox "Welcome to the Linux Prompt Generator Utility.
+You will be able to customize your prompt by using the next menus" 20 80
 }
 
 function mainMenu {
@@ -46,9 +46,11 @@ function customPromptMenu {
     --backtitle "SILVARION'S LINUX PROMPT GENERATOR" \
     --title "Custom Prompt" \
     --menu "Choose what you want to do" 20 80 10 \
-    "Start" "Build your prompt from scratch" \
+    "Start" "Build your prompt from scratch" ON \
     "Read from ENV" "Read your current PS1, if any" \
+    "Add an element to the prompt" "Add an element at the end of the current prompt" \
     "Show current PS1" "Show the export command for your custom prompt" \
+    "Back" "Return to the previous menu" \
     "Quit" "Exit this wizard"
 
 }
@@ -58,15 +60,24 @@ function customPromptMenu {
 ####################
 
 welcomeMessage
+action="New"
 while [[ ${action} != "Quit" ]]
 do
-    action=$( mainMenu 3>&1 1>&2 2>&3)
+    action=$(mainMenu 3>&1 1>&2 2>&3)
     case ${action} in
         ("Start")
             interpreter=$(selectShell 3>&1 1>&2 2>&3)
             while [[ ${option} != "Back" ]]
             do
-                $(customPromtMenu) 3>&1 1>&2 2>&3
+                startAction=$(customPromptMenu 3>&1 1>&2 2>&3)
+                case ${startAction} in
+                    ("Back")
+                        #TO-DO: Shell menu
+                        ;;
+                    (*)
+                        #TO-DO: Shell menu
+                        ;;
+                esac
             done
             ;;
         ("Read from ENV")
@@ -77,6 +88,7 @@ do
             ;;
         ("Quit")
             #TO-DO: Shell menu
+            exit(0)
             ;;
         (*)
             #TO-DO: Shell menu
