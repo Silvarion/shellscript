@@ -161,7 +161,7 @@ function msgPrint {
 	elif [[ ${type} = "TITLE" ]]
 	then
 		SPLITTER="=================================================\n"
-		printf " "
+		printf "\n"
 		printf "$SPLITTER"
 		if [[ ${msgColor} = "FALSE" ]]
 		then
