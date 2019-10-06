@@ -269,7 +269,7 @@ function getArgs {
         then
                 msgPrint -warning "No arguments found"
                 msgPrint -info "Please call this function as follows: . getArgs \$*"
-		return 1
+                exit 1
         fi
 
         # Grab the dash
