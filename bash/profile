@@ -1,0 +1,16 @@
+GITROOT=/mnt/c/Users/Silvarion/Projects/git-repos
+export GITROOT
+cd $GITROOT
+
+# SET special Prompt
+PS1='$(if [[ $? == 0 ]]; then echo "\[\e[32m\]:)"; else echo "\[\e[31m\]:("; fi) \[\033[0m\][\[\033[1;34m\]\u\[\033[1;37m\]@\[\033[0;32m\]\h\[\033[0m\]] \W \[\033[1;32m\]\\$\[\033[0m\] '
+export PS1
+
+# Vagarant and Chef
+export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
+
+MYSQL_PS1="\u@\h [mysql: \d]> "
+export MYSQL_PS1
+alias python='python3'
+alias knife='/usr/bin/knife'
+alias loadsshagent='eval $(ssh-agent -s) && ssh-add ~/.ssh/js-git-key'
